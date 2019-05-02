@@ -1,7 +1,7 @@
 import React from 'react';
 import { Grid, AppBar, Paper, withStyles, Toolbar, Typography, Chip, Avatar, TextField, Button, List, ListItem, ListItemText, Divider, ListItemIcon, ListItemSecondaryAction, IconButton } from '@material-ui/core'
 import PropTypes from 'prop-types'
-import { Done } from '@material-ui/icons'
+import { Done, Archive, Undo } from '@material-ui/icons'
 
 const styles = theme => ({
     background: {  
@@ -18,16 +18,19 @@ const styles = theme => ({
         // display: 'flex',
         // alignItems: 'center',
         // justifyContent: 'center',
+        clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 73%)',
         height: '50vh',
-        backgroundColor: theme.palette.background.background2
+        backgroundColor: theme.palette.background.background2,
+        borderBottom:  '25px solid '+ theme.palette.background.background2,
+
 
     },
     paper: {
         width: '25rem',
-        height: '30rem',
+        minHeight: '30rem',
         margin: 'auto',
         marginTop: '-75vh',
-        borderRadius: '5%'
+        marginBottom: '2rem'
     },
     chip: {
         margin: theme.spacing.unit,
@@ -63,38 +66,102 @@ const styles = theme => ({
 class App extends React.Component {
 
     state = {
-        todos: [
-            {
-                text: 'Finish creating this app',
-                status: 0
-            },
-            {
-                text: 'Code at starbucks',
-                status: 0
-            },
-            {
-                text: 'Drink something at starbucks',
-                status: 1
-            },{
-                text: 'Have breakfast',
-                status: 2
-            },
-        ],
-        inProgress: 2,
-        done: 1,
-        archived: 0,
+        // todos: [
+        //     {
+        //         text: 'Finish creating this app',
+        //         status: 0
+        //     },
+        //     {
+        //         text: 'Code at starbucks',
+        //         status: 0
+        //     },
+        //     {
+        //         text: 'Drink something at starbucks',
+        //         status: 1
+        //     },{
+        //         text: 'Have breakfast',
+        //         status: 2
+        //     },
+        // ],
+        inProgress: localStorage.getItem('todos') ? JSON.parse(localStorage.getItem('todos')).filter(i => i.status === 0).length : 0,
+        done: localStorage.getItem('todos') ? JSON.parse(localStorage.getItem('todos')).filter(i => i.status === 1).length : 0,
+        archived: localStorage.getItem('todos') ? JSON.parse(localStorage.getItem('todos')).filter(i => i.status === 2).length : 0,
         todo: ''
     }
 
     addTodo = (todo) => {
-        this.state.todos.push({
-            text: todo,
-            status: 0
-        })
+        if(!localStorage.getItem('todos')) {
+            const todos = []
+            todos.push({
+                text: todo,
+                status: 0
+            })
+            localStorage.setItem('todos',  JSON.stringify(todos))
+        }else{
+            const todos = JSON.parse(localStorage.getItem('todos'));
+            todos.push({
+                text: todo,
+                status: 0
+            })
+            localStorage.setItem('todos', JSON.stringify(todos))
+        }
+
         console.log(this.state);
         
         this.setState({
-            todo: ''
+            todo: '',
+            inProgress: localStorage.getItem('todos') ? JSON.parse(localStorage.getItem('todos')).filter(i => i.status === 0).length : 0,
+        })
+    }
+    
+    markAsDone = (todo, i) => {
+        const todos = JSON.parse(localStorage.getItem('todos'));
+        todos.splice(i, 1, {
+            text: todo.text,
+            status: 1
+        })
+        localStorage.setItem('todos', JSON.stringify(todos))
+        
+        this.setState({
+            todo: '',
+            inProgress: localStorage.getItem('todos') ? JSON.parse(localStorage.getItem('todos')).filter(i => i.status === 0).length : 0,
+            done: localStorage.getItem('todos') ? JSON.parse(localStorage.getItem('todos')).filter(i => i.status === 1).length : 0,
+            archived: localStorage.getItem('todos') ? JSON.parse(localStorage.getItem('todos')).filter(i => i.status === 2).length : 0,
+       
+        })
+    }
+        
+    markAsUnDone = (todo, i) => {
+        const todos = JSON.parse(localStorage.getItem('todos'));
+        todos.splice(i, 1, {
+            text: todo.text,
+            status: 0
+        })
+        localStorage.setItem('todos', JSON.stringify(todos))
+        
+        this.setState({
+            todo: '',
+            inProgress: localStorage.getItem('todos') ? JSON.parse(localStorage.getItem('todos')).filter(i => i.status === 0).length : 0,
+            done: localStorage.getItem('todos') ? JSON.parse(localStorage.getItem('todos')).filter(i => i.status === 1).length : 0,
+            archived: localStorage.getItem('todos') ? JSON.parse(localStorage.getItem('todos')).filter(i => i.status === 2).length : 0,
+       
+        })
+    }
+        
+    archive = (todo, i) => {
+        const todos = JSON.parse(localStorage.getItem('todos'));
+        todos.splice(i, 1, {
+            text: todo.text,
+            status: 2
+        })
+        localStorage.setItem('todos', JSON.stringify(todos))
+        
+        this.setState({
+            todo: '',
+            inProgress: localStorage.getItem('todos') ? JSON.parse(localStorage.getItem('todos')).filter(i => i.status === 0).length : 0,
+            done: localStorage.getItem('todos') ? JSON.parse(localStorage.getItem('todos')).filter(i => i.status === 1).length : 0,
+            archived: localStorage.getItem('todos') ? JSON.parse(localStorage.getItem('todos')).filter(i => i.status === 2).length : 0,
+       
         })
     }
 
@@ -117,7 +184,9 @@ class App extends React.Component {
                         </div>
                     </div>  
                 </div>
-                <Paper className={classes.paper}>
+                <div>
+
+                <Paper className={classes.paper} elevation={3}>
                     <Paper className={classes.inputField}>
                     <form 
                         className={classes.form}
@@ -161,13 +230,15 @@ class App extends React.Component {
                     </AppBar>
                     <List>
                         {
-                            this.state.todos.map((todo, i) => {
+                            localStorage.getItem('todos') ? JSON.parse(localStorage.getItem('todos')).map((todo, i) => {
                                 if(todo.status === 0) return (
                                     <div key={i}>
                                         <ListItem>
                                             <ListItemText primary={todo.text} />
                                             <ListItemSecondaryAction>
-                                                <IconButton aria-label="Done" onClick={this.markAsDone}>
+                                                <IconButton aria-label="Done" onClick={e => {
+                                                    this.markAsDone(todo, i)
+                                                }}>
                                                     <Done />
                                                 </IconButton>
                                             </ListItemSecondaryAction>
@@ -175,10 +246,39 @@ class App extends React.Component {
                                         <Divider />
                                     </div>
                                 )
-                            })
+                            }) : ''
+                        }
+                    </List>
+                    <List>
+                        {
+                            localStorage.getItem('todos') ? JSON.parse(localStorage.getItem('todos')).map((todo, i) => {
+                                if(todo.status === 1) return (
+                                    <div key={i}>
+                                        <ListItem disabled>
+                                            <ListItemText primary={todo.text} />
+                                            <ListItemSecondaryAction>
+                                                <IconButton aria-label="Done" onClick={e => {
+                                                    this.markAsUnDone(todo, i)
+                                                }}>
+                                                    <Undo />
+                                                </IconButton>
+                                                <IconButton aria-label="Done" onClick={e => {
+                                                    this.archive(todo, i)
+                                                }}>
+                                                    <Archive />
+                                                </IconButton>
+                                                
+                                            </ListItemSecondaryAction>
+                                        </ListItem>
+                                        <Divider />
+                                    </div>
+                                )
+                            }) : ''
                         }
                     </List>
                 </Paper>
+                </div>
+
             </div>
         )
     }
