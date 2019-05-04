@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, AppBar, Paper, withStyles, Toolbar, Typography, Chip, Avatar, TextField, Button, List, ListItem, ListItemText, Divider, ListItemIcon, ListItemSecondaryAction, IconButton } from '@material-ui/core'
+import { Grid, AppBar, Paper, withStyles, Toolbar, Typography, Chip, Avatar, TextField, Button, List, ListItem, ListItemText, Divider, ListItemIcon, ListItemSecondaryAction, IconButton, Grow } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import { Done, Archive, Undo } from '@material-ui/icons'
 
@@ -8,21 +8,28 @@ const styles = theme => ({
         height: '100vh',
     },
     root: {
-        // display: 'flex',
-        // alignItems: 'center',
-        // justifyContent: 'center',
-        minHeight: '100vh',
-        backgroundColor: theme.palette.background.default,
-    },    
-    backgroundPaper: {
-        // display: 'flex',
-        // alignItems: 'center',
-        // justifyContent: 'center',
-        clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 73%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         height: '50vh',
         backgroundColor: theme.palette.background.background2,
-        borderBottom:  '25px solid '+ theme.palette.background.background2,
-
+        width: '100vw',
+        '&:after': {
+            position: 'absolute',
+            top: '50%',
+            left: 0,
+            zIndex: -1,
+            content:'""',
+            height:0,
+            width:0,
+            borderRight: '100vw solid '+ theme.palette.background.background2,
+            borderBottom: '10vw solid transparent',
+            borderTop: '0px solid transparent',
+            overflow: 'hidden'
+        }
+    },    
+    backgroundPaper: {
+        
 
     },
     paper: {
@@ -35,6 +42,10 @@ const styles = theme => ({
     chip: {
         margin: theme.spacing.unit,
         width: '10rem'
+    },
+    chipAvatar: {
+        // float: 'right'
+        backgroundColor: '#fff'
     },
     navbar: {
         // borderRadius: '5%'
@@ -59,6 +70,7 @@ const styles = theme => ({
         justifyContent: 'center',
     },
     textField: {
+        marginBottom: theme.spacing.unit
         // margin: theme.spacing.unit
     }
 })
@@ -216,15 +228,21 @@ class App extends React.Component {
                             </Typography> */}
                             {
                                 this.state.inProgress > 0 ? 
-                                    <Chip avatar={<Avatar>{this.state.inProgress}</Avatar>} label="In progress" className={classes.chip} />  : ''     
+                                <Grow in={this.state.inProgress !== 0} >
+                                    <Chip avatar={<Avatar>{this.state.inProgress}</Avatar>} label="In progress" classes={{root: classes.chip, avatar: classes.chipAvatar}} />     
+                                </Grow>  : ''
                             } 
                             {
                                 this.state.done  > 0 ?  
-                                    <Chip avatar={<Avatar>{this.state.done}</Avatar>} label="Finished" className={classes.chip} /> : ''
+                                <Grow in={this.state.done !== 0} >
+                                    <Chip avatar={<Avatar>{this.state.done}</Avatar>} label="Finished" className={classes.chip} /> 
+                                </Grow>: ''
                             }
                             {
                                 this.state.archived > 0 ? 
-                                   <Chip avatar={<Avatar>{this.state.archived}</Avatar>} label="Archived" className={classes.chip} /> : ''
+                                <Grow in={this.state.archived !== 0}>
+                                   <Chip avatar={<Avatar>{this.state.archived}</Avatar>} label="Archived" className={classes.chip} /> 
+                                </Grow> : ''
                             }
                         </Toolbar>
                     </AppBar>
@@ -233,6 +251,7 @@ class App extends React.Component {
                             localStorage.getItem('todos') ? JSON.parse(localStorage.getItem('todos')).map((todo, i) => {
                                 if(todo.status === 0) return (
                                     <div key={i}>
+                                        <Grow in={true}>
                                         <ListItem>
                                             <ListItemText primary={todo.text} />
                                             <ListItemSecondaryAction>
@@ -243,6 +262,7 @@ class App extends React.Component {
                                                 </IconButton>
                                             </ListItemSecondaryAction>
                                         </ListItem>
+                                        </Grow>
                                         <Divider />
                                     </div>
                                 )
