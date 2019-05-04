@@ -44,11 +44,9 @@ const styles = theme => ({
         width: '10rem'
     },
     chipAvatar: {
-        // float: 'right'
         backgroundColor: '#fff'
     },
     navbar: {
-        // borderRadius: '5%'
     },
     toolbar: {
         display: 'flex',
@@ -59,9 +57,6 @@ const styles = theme => ({
         height: '40%',
         borderRadius: 'inherit inherit 0 0 ',
         padding: theme.spacing.unit * 2,
-        // display: 'flex',
-        // // alignItems: 'center',
-        // justifyContent: 'center',
     },
     form: {
         display: 'flex',
@@ -71,30 +66,12 @@ const styles = theme => ({
     },
     textField: {
         marginBottom: theme.spacing.unit
-        // margin: theme.spacing.unit
     }
 })
 
 class App extends React.Component {
 
     state = {
-        // todos: [
-        //     {
-        //         text: 'Finish creating this app',
-        //         status: 0
-        //     },
-        //     {
-        //         text: 'Code at starbucks',
-        //         status: 0
-        //     },
-        //     {
-        //         text: 'Drink something at starbucks',
-        //         status: 1
-        //     },{
-        //         text: 'Have breakfast',
-        //         status: 2
-        //     },
-        // ],
         inProgress: localStorage.getItem('todos') ? JSON.parse(localStorage.getItem('todos')).filter(i => i.status === 0).length : 0,
         done: localStorage.getItem('todos') ? JSON.parse(localStorage.getItem('todos')).filter(i => i.status === 1).length : 0,
         archived: localStorage.getItem('todos') ? JSON.parse(localStorage.getItem('todos')).filter(i => i.status === 2).length : 0,
@@ -223,13 +200,10 @@ class App extends React.Component {
                     </Paper>
                     <AppBar position="static" className={classes.navbar}>
                         <Toolbar className={classes.toolbar}>
-                            {/* <Typography >
-                                TODO'S
-                            </Typography> */}
                             {
                                 this.state.inProgress > 0 ? 
                                 <Grow in={this.state.inProgress !== 0} >
-                                    <Chip avatar={<Avatar>{this.state.inProgress}</Avatar>} label="In progress" classes={{root: classes.chip, avatar: classes.chipAvatar}} />     
+                                    <Chip avatar={<Avatar>{this.state.inProgress}</Avatar>} label="In progress" classes={{root: classes.chip}} />     
                                 </Grow>  : ''
                             } 
                             {
